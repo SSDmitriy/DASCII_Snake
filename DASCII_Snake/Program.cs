@@ -15,6 +15,10 @@ namespace DASCII_Snake
             SetBufferSize(MAP_WIDTH, MAP_HEIGHT);
             CursorVisible = false;
 
+            Pixel pixel1 = new Pixel(4,5, ConsoleColor.DarkCyan);
+
+            pixel1.draw();
+
             ReadKey();
 
         }

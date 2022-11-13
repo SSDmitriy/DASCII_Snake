@@ -8,23 +8,24 @@ using System.Threading.Tasks;
 
 namespace DASCII_Snake
 {
-    public struct Pixel
+    public class Pixel
     {
         //private const char PIXEL_CHAR = '▓' ▒ ░  █ ☺ ☻ ► ◄ ▲ ▼ ◙;
-        private const char PIXEL_CHAR = '▓';
+        private const char PIXEL_CHAR = '█';
         private const char PIXEL_EMPTY = ' ';
 
         private int x;
         private int y;
-        public ConsoleColor color;
+        private ConsoleColor color;
 
-        public Pixel(int x, int y, ConsoleColor color){
+        public Pixel(int x, int y, ConsoleColor color)
+        {
 
             this.x = x;
             this.y = y;
             this.color = color;
 
-            }
+        }
 
         public int getX()
         {
@@ -48,13 +49,14 @@ namespace DASCII_Snake
 
         //public ConsoleColor Color { get; }
 
-        public void draw()
+        public void Draw()
         {
             Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = color;
             Console.Write(PIXEL_CHAR);
         }
-        
-        public void clear()
+
+        public void Clear()
         {
             Console.SetCursorPosition(x, y);
             Console.Write(PIXEL_EMPTY);

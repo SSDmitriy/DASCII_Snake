@@ -22,7 +22,8 @@ namespace DASCII_Snake
             //добавил тело внутри конструктора
             for (int i = bodyLenght; i >= 0; i--)
             {
-                SnakeBody.Enqueue(new Pixel(SnakeHead.getX() - i - 1, initialY, _bodyColor));
+                //тело отрисовываем от головы, отсутпая вниз по 1 пикс
+                SnakeBody.Enqueue(new Pixel(initialX, SnakeHead.getY() + i + 1, _bodyColor));
             }
 
             //нарисовать змею в коснтруторе
@@ -30,10 +31,11 @@ namespace DASCII_Snake
 
         }
 
+        //тело змейки - это очередь
         public Queue<Pixel> SnakeBody = new Queue<Pixel>();
 
-        //движение змейки: стереть змейку, добавить голову,
-        //          убрать последний хвост,
+        //движение змейки: стереть змейку, добавить голову в очередь,
+        //          убрать из очереди последний хвост,
         //              нарисовать голову, нарисовать тело
         public void MoveSnake(Direction direction)
         {
@@ -46,16 +48,16 @@ namespace DASCII_Snake
             int _newHeadX = SnakeHead.getX();
             int _newHeadY = SnakeHead.getY();
 
-            switch(direction)
+            switch (direction)
             {
                 case Direction.Left:
                     _newHeadX = SnakeHead.getX() - 1;
                     break;
-                
+
                 case Direction.Right:
                     _newHeadX = SnakeHead.getX() + 1;
-                    break;                    
-           
+                    break;
+
                 case Direction.Up:
                     _newHeadY = SnakeHead.getY() - 1;
                     break;

@@ -34,6 +34,20 @@ namespace DASCII_Snake
         //тело змейки - это очередь
         public Queue<Pixel> SnakeBody = new Queue<Pixel>();
 
+
+
+
+
+        //public int GetSnakeHeadX()
+        //{
+        //    return SnakeHead.getX();
+        //}
+
+        //public int GetSnakeHeadY()
+        //{
+        //    return SnakeHead.getY();
+        //}
+
         //движение змейки: стереть змейку, добавить голову в очередь,
         //          убрать из очереди последний хвост,
         //              нарисовать голову, нарисовать тело
@@ -70,10 +84,6 @@ namespace DASCII_Snake
             SnakeHead = new Pixel(_newHeadX, _newHeadY, _headColor);
 
             DrawSnake();
-
-
-
-
         }
 
 

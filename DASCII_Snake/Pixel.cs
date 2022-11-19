@@ -44,8 +44,8 @@ namespace DASCII_Snake
         //    Color = color;
         //}
 
-        //public int X { get; }
-        //public int Y { get; }
+        public int X { get; }
+        public int Y { get; }
 
         //public ConsoleColor Color { get; }
 

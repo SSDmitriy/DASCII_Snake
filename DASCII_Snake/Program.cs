@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using static System.Console;
 
@@ -8,14 +9,19 @@ namespace DASCII_Snake
     class Program
     {
         //global vars
-        private const int MAP_WIDTH = 40;
-        private const int MAP_HEIGHT = 40;
+        public const int MAP_WIDTH = 40;
+        public const int MAP_HEIGHT = 40;
+        public const int BODY_START_LENGHT = 7;
 
+        public const int SCORE_TO_WIN = MAP_WIDTH * MAP_HEIGHT - BODY_START_LENGHT - 1;
+        
         private const ConsoleColor BORDER_COLOR = ConsoleColor.Magenta;
         private const ConsoleColor HEAD_COLOR = ConsoleColor.White;
         private const ConsoleColor BODY_COLOR = ConsoleColor.Green;
 
+        static int score = BODY_START_LENGHT;
         static bool _isGameover = false;
+        static bool _isSelfEat = false;
         static bool _isWin = false;
 
 
@@ -23,8 +29,9 @@ namespace DASCII_Snake
         {
             SetWindowSize(MAP_WIDTH, MAP_HEIGHT);
             SetBufferSize(MAP_WIDTH, MAP_HEIGHT);
-            CursorVisible = false;
 
+
+            CursorVisible = false;
 
             Snake snake = new Snake(MAP_WIDTH / 2, MAP_HEIGHT / 2, HEAD_COLOR, BODY_COLOR);
 
@@ -33,70 +40,65 @@ namespace DASCII_Snake
             DrawBorder();
 
 
-
-            
             while (true)
             {
-                Thread.Sleep(150);
-
-                Console.SetCursorPosition(2, 2);
-                //Console.WriteLine("pX:" + Convert.ToString(snake.SnakeBody.getX()));
-
+                Thread.Sleep(50);
 
                 currentMovement = ReadDirection(currentMovement);
                 snake.MoveSnake(currentMovement);
+ 
 
                 //условие проигрыша - если врезался в границы
-                if(snake.SnakeHead.getX() == 0
+                if (snake.SnakeHead.getX() == 0
                     || snake.SnakeHead.getX() == MAP_WIDTH - 1
                     || snake.SnakeHead.getY() == 0
                     || snake.SnakeHead.getY() == MAP_HEIGHT - 1
-                    || snake.SnakeBody.Any(b => b.X == 3 && b.Y == 3))
+                    )
                 {
                     _isGameover = true;
                     _isWin = false;
                     break;
                 }
 
-                //if(snake.SnakeBody.Any(b => b.X == snake.SnakeHead.X & b.Y == snake.SnakeHead.Y))
-                //{
-                //    _isGameover = true;
-                //    _isWin = true;
-                //    break;
-                //}
+                //условие проигрыша - если укусил себя
+                bool exitFlag = false;
+                foreach (Pixel pix in snake.allPixels)
+                {
+
+                    if (pix.getX() == snake.SnakeHead.getX() && pix.getY() == snake.SnakeHead.getY())
+                    {
+                        _isGameover = true;
+                        _isSelfEat = true;
+                        _isWin = false;
+                        exitFlag = true; //это чтобы после выхода из foreach дальше выйти из while
+                        break;
+                    }
+
+                }
+                if (exitFlag) break;
 
 
+                if(score == SCORE_TO_WIN)
+                {
+                    _isGameover = true;
+                    _isWin = true;
+                    break;
+                }
 
             }
 
 
 
-                //после игры
-                if (_isGameover)
+            //после игры
+            if (_isGameover)
             {
                 if (_isWin) // вслучае победы ► ◄ ▲ ▼
                 {
                     string winMessage1 = "►►►       Congratulation!     ◄◄◄";
                     string winMessage2 = "►►►          You are          ◄◄◄";
                     string winMessage3 = "►►► THE LOOOOOOOOONGEST WORM! ◄◄◄";
-                    Console.Beep();
+                    Console.Beep(440, 400);
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.SetCursorPosition(MAP_WIDTH/2 - winMessage1.Length/2, MAP_HEIGHT/2 - 2);
-                    Console.Write(winMessage1);
-                    Console.SetCursorPosition(MAP_WIDTH/2 - winMessage2.Length/2, MAP_HEIGHT/2 + 0);
-                    Console.Write(winMessage2);
-                    Console.SetCursorPosition(MAP_WIDTH/2 - winMessage3.Length/2, MAP_HEIGHT/2 + 2);
-                    Console.Write(winMessage3);
-                                     
-                }
-
-                if (!_isWin) // вслучае проигрыша
-                {
-                    string winMessage1 = "Твой счёт:";
-                    string winMessage2 = "55";
-                    string winMessage3 = "...есть, куда расти...";
-                    Console.Beep();
-                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
                     Console.Write(winMessage1);
                     Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage2.Length / 2, MAP_HEIGHT / 2 + 0);
@@ -106,12 +108,44 @@ namespace DASCII_Snake
 
                 }
 
+                if (!_isWin) // вслучае проигрыша
+                {
+                    if (!_isSelfEat)
+                    {
+                        string winMessage1 = "Твой счёт:";
+                        string winMessage2 = Convert.ToString(score);
+                        string winMessage3 = "...есть, куда расти...";
+                        Console.Beep(880, 300);
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
+                        Console.Write(winMessage1);
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage2.Length / 2, MAP_HEIGHT / 2 + 0);
+                        Console.Write(winMessage2);
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage3.Length / 2, MAP_HEIGHT / 2 + 2);
+                        Console.Write(winMessage3);
+                    }
+                    else
+                    {
+                        string winMessage1 = "EAT MY SHORTS!";
+                        string winMessage2 = "Твой счёт: " + Convert.ToString(score);
+                        string winMessage3 = "...давай ещё разок...";
+                        Console.Beep(880, 300);
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
+                        Console.Write(winMessage1);
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage2.Length / 2, MAP_HEIGHT / 2 + 0);
+                        Console.Write(winMessage2);
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage3.Length / 2, MAP_HEIGHT / 2 + 2);
+                        Console.Write(winMessage3);
+                    }
+
+
+                }
+
             }
 
 
             ReadKey();
-
-
 
         }
 
@@ -170,7 +204,7 @@ namespace DASCII_Snake
                     }
                     break;
             }
-
+            Console.Beep(400, 100);
             return currentDirection;
         }
 

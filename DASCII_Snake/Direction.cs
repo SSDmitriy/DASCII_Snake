@@ -5,8 +5,4 @@
         Up, Down, Left, Right
     }
 
-    //public enum ForbiddenDirection
-    //{
-    //    Up, Down, Left, Right
-    //}
 }

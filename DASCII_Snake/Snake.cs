@@ -54,13 +54,13 @@ namespace DASCII_Snake
         //движение змейки: стереть змейку, добавить голову в очередь,
         //          убрать из очереди последний хвост,
         //              нарисовать голову, нарисовать тело
-        public void MoveSnake(Direction direction)
+        public void MoveSnake(Direction direction, bool eat = false)
         {
             ClearSnake();
 
             SnakeBody.Enqueue(new Pixel(SnakeHead.getX(), SnakeHead.getY(), _bodyColor));
 
-            SnakeBody.Dequeue();
+            if(!eat) SnakeBody.Dequeue();
 
             SnakeBody.CopyTo(allPixels, 0);
             for (int i = 0; i < allPixels.Length; i++)

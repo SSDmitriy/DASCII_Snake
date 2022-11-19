@@ -11,42 +11,62 @@ namespace DASCII_Snake
         //global vars
         public const int MAP_WIDTH = 40;
         public const int MAP_HEIGHT = 40;
-        public const int BODY_START_LENGHT = 7;
+        public const int BODY_START_LENGHT = 3;
 
         public const int SCORE_TO_WIN = MAP_WIDTH * MAP_HEIGHT - BODY_START_LENGHT - 1;
-        
+
         private const ConsoleColor BORDER_COLOR = ConsoleColor.Magenta;
         private const ConsoleColor HEAD_COLOR = ConsoleColor.White;
         private const ConsoleColor BODY_COLOR = ConsoleColor.Green;
+        private const ConsoleColor FOOD_COLOR = ConsoleColor.Yellow;
+
+        private static readonly Random random = new Random();
 
         static int score = BODY_START_LENGHT;
         static bool _isGameover = false;
         static bool _isSelfEat = false;
         static bool _isWin = false;
+        
+        static int speed = 120;
 
 
         static void Main(string[] args)
         {
             SetWindowSize(MAP_WIDTH, MAP_HEIGHT);
             SetBufferSize(MAP_WIDTH, MAP_HEIGHT);
-
-
             CursorVisible = false;
+
+            Clear();
+            DrawBorder();
+            Direction currentMovement = Direction.Up; //первоначальное движение вверх
 
             Snake snake = new Snake(MAP_WIDTH / 2, MAP_HEIGHT / 2, HEAD_COLOR, BODY_COLOR);
 
-            Direction currentMovement = Direction.Up; //первоначальное движение вверх
-
-            DrawBorder();
+            Pixel food = AddNewFood(snake);
+            food.Draw();
 
 
             while (true)
             {
-                Thread.Sleep(50);
-
+                Thread.Sleep(200 - speed);
+                //score += 10;
                 currentMovement = ReadDirection(currentMovement);
-                snake.MoveSnake(currentMovement);
- 
+
+                //Если голова на текущем ходу совпала с едой, то передать eat=true
+                if(snake.SnakeHead.getX() == food.getX() && snake.SnakeHead.getY() == food.getY())
+                {
+                    snake.MoveSnake(currentMovement, true);
+                    food = AddNewFood(snake);
+                    food.Draw();
+                    score++;
+                }
+                else
+                {
+                    snake.MoveSnake(currentMovement);
+                }
+
+                
+
 
                 //условие проигрыша - если врезался в границы
                 if (snake.SnakeHead.getX() == 0
@@ -78,7 +98,7 @@ namespace DASCII_Snake
                 if (exitFlag) break;
 
 
-                if(score == SCORE_TO_WIN)
+                if (score >= SCORE_TO_WIN)
                 {
                     _isGameover = true;
                     _isWin = true;
@@ -97,7 +117,7 @@ namespace DASCII_Snake
                     string winMessage1 = "►►►       Congratulation!     ◄◄◄";
                     string winMessage2 = "►►►          You are          ◄◄◄";
                     string winMessage3 = "►►► THE LOOOOOOOOONGEST WORM! ◄◄◄";
-                    Console.Beep(440, 400);
+                    //Console.Beep(440, 400);
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
                     Console.Write(winMessage1);
@@ -115,7 +135,7 @@ namespace DASCII_Snake
                         string winMessage1 = "Твой счёт:";
                         string winMessage2 = Convert.ToString(score);
                         string winMessage3 = "...есть, куда расти...";
-                        Console.Beep(880, 300);
+                        //Console.Beep(880, 300);
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
                         Console.Write(winMessage1);
@@ -129,7 +149,7 @@ namespace DASCII_Snake
                         string winMessage1 = "EAT MY SHORTS!";
                         string winMessage2 = "Твой счёт: " + Convert.ToString(score);
                         string winMessage3 = "...давай ещё разок...";
-                        Console.Beep(880, 300);
+                        //Console.Beep(880, 300);
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
                         Console.Write(winMessage1);
@@ -147,9 +167,8 @@ namespace DASCII_Snake
 
             ReadKey();
 
+
         }
-
-
 
         //нарисовать края карты
         static void DrawBorder()
@@ -204,8 +223,22 @@ namespace DASCII_Snake
                     }
                     break;
             }
-            Console.Beep(400, 100);
+            //Console.Beep(400, 150);
             return currentDirection;
+        }
+
+        //сгенерировать еду
+        static Pixel AddNewFood(Snake snake)
+        {
+            Pixel food;
+            do
+            {
+                food = new Pixel(random.Next(1, MAP_WIDTH - 2), random.Next(1, MAP_HEIGHT - 2), FOOD_COLOR);
+            } while (snake.SnakeHead.getX() == food.getX() && snake.SnakeHead.getY() == food.getY()
+                        || snake.SnakeBody.Any(b => b.getX() == food.getX() && b.getY() == food.getY()  )
+                        );
+            //snake.allPixels
+            return food;
         }
 
     }

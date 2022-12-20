@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using static System.Console;
+using System.Diagnostics;
 
 
 namespace DASCII_Snake
@@ -11,9 +12,10 @@ namespace DASCII_Snake
         //global vars
         public const int MAP_WIDTH = 40;
         public const int MAP_HEIGHT = 40;
-        public const int BODY_START_LENGHT = 3;
+        public const int BODY_START_LENGHT = 7;
 
-        public const int SCORE_TO_WIN = MAP_WIDTH * MAP_HEIGHT - BODY_START_LENGHT - 1;
+        //public const int SCORE_TO_WIN = MAP_WIDTH * MAP_HEIGHT - BODY_START_LENGHT - 1;
+        public const int SCORE_TO_WIN = 20;
 
         private const ConsoleColor BORDER_COLOR = ConsoleColor.Magenta;
         private const ConsoleColor HEAD_COLOR = ConsoleColor.White;
@@ -27,11 +29,55 @@ namespace DASCII_Snake
         static bool _isSelfEat = false;
         static bool _isWin = false;
         
-        static int speed = 120;
+        static int speed = 10;
 
+        
 
         static void Main(string[] args)
         {
+
+            string instructionMessage1 = "ПРОБЕЛ - заново";
+            string instructionMessage2 = "2xESC - выход";
+
+        //string GreetingMessage1 = "Приветствую тебя, милый червёнок!";
+        //string GreetingMessage2 = "Хочешь ли стать длиннее и быстрее?";
+        //string GreetingMessage3 = "Выбирай, сколько ты сможешь съесть?";
+        //string GreetingMessage4 = "1 - 10";
+        //string GreetingMessage5 = "2 - 20";
+        //string GreetingMessage6 = "3 - 30";
+        //string GreetingMessage7 = "4 - 40";
+        //string GreetingMessage8 = "5 - 50";
+
+        restart:
+            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //Console.SetCursorPosition(MAP_WIDTH / 2 - GreetingMessage1.Length / 2, MAP_HEIGHT / 2 - 4);
+            //Console.Write(GreetingMessage1);
+
+            //ConsoleKey key = ReadKey(true).Key;
+
+            //в цикле дождаться нажатия 1 -5 и установить SCORE_TO_WIN
+
+            //if (_isGameover == true)
+            //{
+            //    if (key == ConsoleKey.Spacebar)
+            //    {
+            //        goto restart;
+            //    }
+            //    else if (key != ConsoleKey.Escape)
+            //    {
+            //        goto final;
+            //    }
+            //    else { }
+            //}
+
+
+
+
+            _isWin = false;
+            _isGameover = false;
+            _isSelfEat = false;
+            score = BODY_START_LENGHT;
+            speed = 10;
             SetWindowSize(MAP_WIDTH, MAP_HEIGHT);
             SetBufferSize(MAP_WIDTH, MAP_HEIGHT);
             CursorVisible = false;
@@ -39,6 +85,8 @@ namespace DASCII_Snake
             Clear();
             DrawBorder();
             Direction currentMovement = Direction.Up; //первоначальное движение вверх
+
+            Stopwatch sw = new Stopwatch();
 
             Snake snake = new Snake(MAP_WIDTH / 2, MAP_HEIGHT / 2, HEAD_COLOR, BODY_COLOR);
 
@@ -48,17 +96,34 @@ namespace DASCII_Snake
 
             while (true)
             {
-                Thread.Sleep(200 - speed);
-                //score += 10;
-                currentMovement = ReadDirection(currentMovement);
+                sw.Restart();
+
+                Direction oldMovement = currentMovement;
+
+                while(sw.ElapsedMilliseconds <= (150 - speed))
+                {
+                    if (currentMovement == oldMovement)
+                    {
+                        currentMovement = ReadDirection(currentMovement);
+                    }
+                }
+                
+                //Thread.Sleep(200 - speed);
+                
+                
 
                 //Если голова на текущем ходу совпала с едой, то передать eat=true
                 if(snake.SnakeHead.getX() == food.getX() && snake.SnakeHead.getY() == food.getY())
                 {
                     snake.MoveSnake(currentMovement, true);
-                    food = AddNewFood(snake);
-                    food.Draw();
+                    if (score < SCORE_TO_WIN - 1)
+                    {
+                        food = AddNewFood(snake);
+                        food.Draw();
+                    }
                     score++;
+                    if(speed<110)speed+=10;
+                    //Console.Beep(600,100);
                 }
                 else
                 {
@@ -114,17 +179,28 @@ namespace DASCII_Snake
             {
                 if (_isWin) // вслучае победы ► ◄ ▲ ▼
                 {
-                    string winMessage1 = "►►►       Congratulation!     ◄◄◄";
-                    string winMessage2 = "►►►          You are          ◄◄◄";
-                    string winMessage3 = "►►► THE LOOOOOOOOONGEST WORM! ◄◄◄";
+                    string winMessage1 = "►►►        Ура!  Победа!      ◄◄◄";
+                    string winMessage2 = "►►►     Твоя длина: " + Convert.ToString(score) + "!!!     ◄◄◄";
+                    string winMessage3 = "►►►          You are          ◄◄◄";
+                    string winMessage4 = "►►► THE LOOOOOOOOONGEST WORM! ◄◄◄";
+                    
                     //Console.Beep(440, 400);
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 4);
                     Console.Write(winMessage1);
-                    Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage2.Length / 2, MAP_HEIGHT / 2 + 0);
+                    Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage2.Length / 2, MAP_HEIGHT / 2 - 2);
                     Console.Write(winMessage2);
-                    Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage3.Length / 2, MAP_HEIGHT / 2 + 2);
+                    Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage3.Length / 2, MAP_HEIGHT / 2 + 0);
                     Console.Write(winMessage3);
+                    Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage4.Length / 2, MAP_HEIGHT / 2 + 2);
+                    Console.Write(winMessage4);
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.SetCursorPosition(MAP_WIDTH / 2 - instructionMessage1.Length / 2, MAP_HEIGHT / 2 + 6);
+                    Console.Write(instructionMessage1);
+                    Console.SetCursorPosition(MAP_WIDTH / 2 - instructionMessage2.Length / 2 - 1, MAP_HEIGHT / 2 + 8);
+                    Console.Write(instructionMessage2);
+                    //_isWin = false;
 
                 }
 
@@ -132,22 +208,29 @@ namespace DASCII_Snake
                 {
                     if (!_isSelfEat)
                     {
-                        string winMessage1 = "Твой счёт:";
+                        string winMessage1 = "Твоя длина:";
                         string winMessage2 = Convert.ToString(score);
                         string winMessage3 = "...есть, куда расти...";
                         //Console.Beep(880, 300);
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage1.Length / 2, MAP_HEIGHT / 2 - 2);
                         Console.Write(winMessage1);
                         Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage2.Length / 2, MAP_HEIGHT / 2 + 0);
                         Console.Write(winMessage2);
                         Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage3.Length / 2, MAP_HEIGHT / 2 + 2);
                         Console.Write(winMessage3);
+
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - instructionMessage1.Length / 2, MAP_HEIGHT / 2 + 6);
+                        Console.Write(instructionMessage1);
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - instructionMessage2.Length / 2 - 1, MAP_HEIGHT / 2 + 8);
+                        Console.Write(instructionMessage2);
+                        //_isWin = false;
                     }
                     else
                     {
                         string winMessage1 = "EAT MY SHORTS!";
-                        string winMessage2 = "Твой счёт: " + Convert.ToString(score);
+                        string winMessage2 = "Твоя длина: " + Convert.ToString(score);
                         string winMessage3 = "...давай ещё разок...";
                         //Console.Beep(880, 300);
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -157,6 +240,14 @@ namespace DASCII_Snake
                         Console.Write(winMessage2);
                         Console.SetCursorPosition(MAP_WIDTH / 2 - winMessage3.Length / 2, MAP_HEIGHT / 2 + 2);
                         Console.Write(winMessage3);
+
+
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - instructionMessage1.Length / 2, MAP_HEIGHT / 2 + 6);
+                        Console.Write(instructionMessage1);
+                        Console.SetCursorPosition(MAP_WIDTH / 2 - instructionMessage2.Length / 2 - 1, MAP_HEIGHT / 2 + 8);
+                        Console.Write(instructionMessage2);
+                        //_isWin = false;
                     }
 
 
@@ -165,9 +256,22 @@ namespace DASCII_Snake
             }
 
 
-            ReadKey();
 
+        final:
+            ConsoleKey key = ReadKey(true).Key;
 
+            if (_isGameover == true)
+            {
+                if (key == ConsoleKey.Spacebar)
+                {
+                    goto restart;
+                }
+                else if (key != ConsoleKey.Escape)
+                {
+                    goto final;
+                }
+                else { }
+            }
         }
 
         //нарисовать края карты

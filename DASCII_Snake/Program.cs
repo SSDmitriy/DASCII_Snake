@@ -5,6 +5,7 @@ using static System.Console;
 using System.Diagnostics;
 
 
+
 namespace DASCII_Snake
 {
     class Program
@@ -13,6 +14,7 @@ namespace DASCII_Snake
         public const int MAP_WIDTH = 40;
         public const int MAP_HEIGHT = 40;
         public const int BODY_START_LENGHT = 7;
+
 
         //public const int scoreToWin = MAP_WIDTH * MAP_HEIGHT - BODY_START_LENGHT - 1;
 
@@ -37,8 +39,15 @@ namespace DASCII_Snake
         static void Main(string[] args)
         {
 
+            //Console.SetWindowSize(40, 40);
+            //Console.SetBufferSize(40, 40);
+
+            Console.SetWindowSize(MAP_WIDTH, MAP_HEIGHT);
+            Console.SetBufferSize(MAP_WIDTH, MAP_HEIGHT);
+
+
             string instructionMessage1 = "ПРОБЕЛ - заново";
-            string instructionMessage2 = "2xESC - выход";
+            string instructionMessage2 = "ESC - выход";
 
             string GreetingMessage1 = "☻☺☻ Привет, Полина! ☺☻☺";
             string GreetingMessage2 = "Не желаешь ли взрастить";
@@ -63,7 +72,7 @@ namespace DASCII_Snake
             Console.Write(GreetingMessage3);
 
         restart:
-            if(_isGameover) Clear();
+            if (_isGameover) Clear();
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.SetCursorPosition(MAP_WIDTH / 2 - GreetingMessage4.Length / 2, MAP_HEIGHT / 2 - 2);
@@ -146,11 +155,12 @@ namespace DASCII_Snake
             _isSelfEat = false;
             score = BODY_START_LENGHT;
             speed = 10;
-            SetWindowSize(MAP_WIDTH, MAP_HEIGHT);
-            SetBufferSize(MAP_WIDTH, MAP_HEIGHT);
+            //SetWindowSize(MAP_WIDTH, MAP_HEIGHT);
+            //SetBufferSize(MAP_WIDTH, MAP_HEIGHT);
             CursorVisible = false;
 
             Clear();
+            Console.SetCursorPosition(0, 0);
             DrawBorder();
             Direction currentMovement = Direction.Up; //первоначальное движение вверх
 
@@ -191,7 +201,7 @@ namespace DASCII_Snake
                     }
                     score++;
                     if (speed < 110) speed += 10;
-                    //Console.Beep(600,100);
+                    //Console.Beep(600, 100);
                 }
                 else
                 {
@@ -200,17 +210,17 @@ namespace DASCII_Snake
 
                 //вывод текущего счета
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.SetCursorPosition(3, MAP_HEIGHT - 1);
+                Console.SetCursorPosition(3, MAP_HEIGHT - 2);
                 Console.Write("Осталось съесть: " + (scoreToWin - score));
-                Console.SetCursorPosition(MAP_WIDTH/2 + 5, MAP_HEIGHT - 1);
-                Console.Write("Скорость: " + speed/10);
+                Console.SetCursorPosition(MAP_WIDTH / 2 + 5, MAP_HEIGHT - 2);
+                Console.Write("Скорость: " + speed / 10);
 
 
                 //условие проигрыша - если врезался в границы
-                if (snake.SnakeHead.getX() == 0
-                    || snake.SnakeHead.getX() == MAP_WIDTH - 1
-                    || snake.SnakeHead.getY() == 0
-                    || snake.SnakeHead.getY() == MAP_HEIGHT - 1
+                if (snake.SnakeHead.getX() == 1
+                    || snake.SnakeHead.getX() == MAP_WIDTH - 2
+                    || snake.SnakeHead.getY() == 1
+                    || snake.SnakeHead.getY() == MAP_HEIGHT - 3
                     )
                 {
                     _isGameover = true;
@@ -242,9 +252,9 @@ namespace DASCII_Snake
                     _isWin = true;
                     break;
                 }
-               
 
-               
+
+
 
 
 
@@ -348,7 +358,8 @@ namespace DASCII_Snake
                 {
                     goto endOfEnd;
                 }
-                else {
+                else
+                {
                     goto final;
                 }
             }
@@ -360,17 +371,23 @@ namespace DASCII_Snake
         //нарисовать края карты
         static void DrawBorder()
         {
-            for (int i = 0; i < MAP_WIDTH; i++)
+
+            //горизонтальные границы
+            for (int i = 1; i < MAP_WIDTH - 2; i++)
             {
-                new Pixel(i, 0, BORDER_COLOR).Draw();
-                new Pixel(i, MAP_HEIGHT - 1, BORDER_COLOR).Draw();
+                new Pixel(i, 1, BORDER_COLOR).Draw();
+                new Pixel(i, MAP_HEIGHT - 3, BORDER_COLOR).Draw();
             }
 
-            for (int j = 1; j < MAP_HEIGHT; j++)
+
+            //вертикальные
+            for (int j = 1; j < MAP_HEIGHT - 2; j++)
             {
-                new Pixel(0, j, BORDER_COLOR).Draw();
-                new Pixel(MAP_WIDTH - 1, j, BORDER_COLOR).Draw();
+                new Pixel(1, j, BORDER_COLOR).Draw();
+                new Pixel(MAP_WIDTH - 2, j, BORDER_COLOR).Draw();
             }
+
+           
         }
 
         //считать курсор для направления движения
@@ -420,7 +437,7 @@ namespace DASCII_Snake
             Pixel food;
             do
             {
-                food = new Pixel(random.Next(1, MAP_WIDTH - 2), random.Next(1, MAP_HEIGHT - 2), FOOD_COLOR);
+                food = new Pixel(random.Next(2, MAP_WIDTH - 3), random.Next(2, MAP_HEIGHT - 4), FOOD_COLOR);
             } while (snake.SnakeHead.getX() == food.getX() && snake.SnakeHead.getY() == food.getY()
                         || snake.SnakeBody.Any(b => b.getX() == food.getX() && b.getY() == food.getY())
                         );
